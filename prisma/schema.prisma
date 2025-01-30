@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Model Mahasiswa
+model Mahasiswa {
+  id           Int      @id @default(autoincrement())
+  nim          String   @unique
+  nama         String
+  email        String   @unique
+  password     String   
+  tanggalLahir DateTime
+  jurusan      String
+  nilai        Nilai[]
+}
+
+// Model Dosen
+model Dosen {
+  id          Int        @id @default(autoincrement()) // ID unik untuk Dosen
+  nidn        String     @unique                     // NIDN dosen
+  nama        String                                 // Nama dosen
+  email       String     @unique                     // Email dosen
+  departemen  String                                 // Departemen dosen
+  mataKuliah  MataKuliah[]                           // Relasi ke model MataKuliah
+}
+
+// Model MataKuliah
+model MataKuliah {
+  id         Int        @id @default(autoincrement()) // ID unik untuk MataKuliah
+  kode       String     @unique                     // Kode mata kuliah
+  nama       String                                 // Nama mata kuliah
+  sks        Int                                    // SKS mata kuliah
+  dosenId    Int                                    // Relasi ke Dosen
+  dosen      Dosen      @relation(fields: [dosenId], references: [id]) // Relasi ke Dosen
+  nilai      Nilai[]                                 // Relasi ke model Nilai
+}
+
+// Model Nilai
+model Nilai {
+  id           Int        @id @default(autoincrement()) // ID unik untuk Nilai
+  mahasiswaId  Int                                    // Relasi ke Mahasiswa
+  mataKuliahId Int                                    // Relasi ke MataKuliah
+  nilai        Decimal   @db.Decimal(5, 2)            // Nilai mata kuliah
+
+  mahasiswa    Mahasiswa  @relation(fields: [mahasiswaId], references: [id]) // Relasi ke Mahasiswa
+  mataKuliah   MataKuliah @relation(fields: [mataKuliahId], references: [id]) // Relasi ke MataKuliah
+}
